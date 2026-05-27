@@ -59,6 +59,7 @@ VLA의 V/L/A를 머신 단위로 칼같이 나누지 않는다. 이유는 ADR-00
 | 게임별 공략집 | `games/{game}/strategy_note.md` | AI | 매 호출 |
 | 현재 세션 상태 | `games/{game}/sessions/{ts}/state.{ext}` | AI (양식 자유) | 매 호출 |
 | 판단 근거 로그 | `games/{game}/sessions/{ts}/log.md` | AI | **아니오** (사람 디버깅용) |
+| 세션 메트릭 | `games/{game}/sessions/{ts}/metrics.jsonl` | 시스템 | **아니오** (사람 분석용) |
 | 과거 스크린샷 | `games/{game}/sessions/{ts}/screenshots/` | 시스템 | 일반 턴 X, **reflection 턴에서 도구로 접근** |
 
 ## 비전 파이프라인 (분담)
