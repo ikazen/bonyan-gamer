@@ -43,9 +43,11 @@ VLA의 V/L/A를 머신 단위로 칼같이 나누지 않는다. 이유는 ADR-00
 
 - AI가 `end_session()` 도구 호출
 - 사람이 명시적으로 finalize 호출
-- 시스템이 게임오버 감지 (`prompt.md`에 정의된 조건)
+- 시스템이 게임오버 감지 (`prompt.md`의 `## 세션 종료 조건` OCR 매칭)
 
 `finalize()` 시점에 **별도 reflection 턴**이 강제로 실행됨 (ADR-002 안전망 3).
+
+`init(game)`은 콜드 스타트도 처리한다: `prompt.md`는 필수(없으면 거부), `strategy_note.md`·`meta_notes.md`는 stub 자동 생성, 첫 세션에 base prompt 콜드 스타트 힌트 자동 부착. 세부는 spec.md.
 
 ## 메모리 계층
 

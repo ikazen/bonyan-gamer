@@ -73,8 +73,22 @@ finalize(session_id)                      # 종료 + reflection 강제 트리거
 - 세션 종료 트리거 3가지:
   1. AI가 `end_session()` 호출
   2. 사용자가 명시적으로 finalize 호출
-  3. 시스템이 게임오버 감지 (`prompt.md`에 정의된 조건)
+  3. 시스템이 게임오버 감지 (`prompt.md`의 `## 세션 종료 조건` OCR 매칭)
 - 세션 폴더는 종료 후에도 보존 (감사·디버깅·미래 reflection 참조)
+
+### 콜드 스타트 (`init(game)` 시 자동 처리)
+
+- `games/{game}/prompt.md` **없으면 `init` 거부** (사람 입력 필수).
+- `games/{game}/strategy_note.md` 없으면 stub 생성:
+  ```
+  # {game} 공략집
+
+  비어있음. 첫 세션 reflection에서 너(AI)가 시드를 채운다.
+  ```
+- `games/_shared/meta_notes.md` 없으면 동일 stub.
+- 첫 세션(= `strategy_note.md`가 stub 그대로)에는 base prompt에 콜드 스타트 힌트 추가:
+  > "콜드 스타트 모드: strategy_note가 비어있다. 보수적으로 탐색하고 reflection에서 충실히 시드를 만들어라."
+- 두 번째 세션부터 stub 여부로 자동 판정해 힌트 비활성. ADR-002 안전망 4와 한 짝.
 
 ## 디렉토리 규약
 
