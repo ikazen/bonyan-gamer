@@ -174,3 +174,31 @@
 - 매 액션마다 스크린샷 자동 첨부 = 턴당 최대 8장 추가 → 비용 폭발. on-demand가 ADR-003 정신과 맞음.
 
 **ADR-001 보강**: "의미 단위로 액션 결정" → "라벨+좌표 사전을 보고 좌표 단위로 액션 결정. 사전 참조는 강력 권장이나 강제하지 않음."
+
+---
+
+## ADR-013: 안전장치 — FAILSAFE + 양측 `/abort` 엔드포인트
+
+**상태**: 채택
+
+**맥락**: LLM이 사용자 물리 머신의 마우스/키보드를 조작한다. 폭주·오인·무한루프 시 사용자가 *반드시* 즉시 정지할 수단이 필요하다.
+
+**결정**: PoC 단계 3중 안전망.
+
+1. **PyAutoGUI FAILSAFE 활성** — Windows executor 부팅 시 `pyautogui.FAILSAFE = True`.
+   - 사용자가 마우스를 화면 좌상단(0, 0)으로 빠르게 던지면 즉시 `FailSafeException`.
+   - executor는 예외를 잡아 액션 중단 후 Mac에 `{"ok": false, "reason": "failsafe_triggered"}` 응답 (ADR-012 페이로드).
+2. **Mac controller `POST /abort` 엔드포인트**.
+   - 호출 시 현재 step 중단, 다음 step 차단(`aborted` 상태로 잠금).
+   - 재개는 명시적 `POST /resume`. 진행 중 세션은 보존, 사람이 finalize 여부 결정.
+3. **Windows executor `POST /abort` 엔드포인트**.
+   - 호출 시 abort flag 세팅. 현재 실행 중 단일 액션은 끝까지 진행 후 정지 (PyAutoGUI 호출은 인터럽트 불가 — 단일 액션은 2초 이내 끝남).
+   - 이후 모든 액션 요청에 `{"ok": false, "reason": "aborted"}` 응답.
+
+**이유**:
+- FAILSAFE는 사용자가 자기 손에 마우스가 있을 때 가장 빠른 수단. OS 핫키 후킹 없이 단순.
+- HTTP `/abort`는 LLM 손에 키보드가 잡힌 상황에서 별 머신·핸드폰 curl 한 줄로 정지 가능.
+
+**고지**: base system prompt(ADR-011)에 "FAILSAFE 발동 또는 abort 시 너의 액션은 강제 중단되고 다음 턴 state에 `aborted`로 보고된다"를 명시.
+
+**미정 (후속)**: 글로벌 핫키 인터럽트, 마우스 hijack 방지 데몬 — PoC 이후.
