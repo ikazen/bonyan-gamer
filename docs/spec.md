@@ -38,6 +38,17 @@
 
 **턴당 도구 호출 예산**: 8회 (`end_turn` 포함). 초과 시 시스템이 강제로 `end_turn` 처리 (ADR-003).
 
+### 액션 도구 응답 페이로드 (ADR-012)
+
+마우스·키보드 액션 도구의 tool_result는 다음 페이로드를 반환한다. 스크린샷은 자동 첨부하지 않으며, 필요하면 LLM이 같은 턴에 `get_screenshot()`를 호출한다.
+
+- 성공: `{"ok": true, "executed_at": [x, y], "elapsed_ms": int}`
+  - 키보드 액션은 `executed_at` 생략 가능.
+- 실패: `{"ok": false, "reason": str}`
+  - `reason` 후보: `out_of_bounds`, `failsafe_triggered`, `windows_unreachable`, `retry_exceeded` (ADR-009), `aborted` (ADR-013).
+
+"클릭 후 화면이 변하지 않음" 같은 의미적 실패는 시스템이 판정하지 않는다. 다음 턴 state에서 LLM이 판단 (ADR-009).
+
 ### Reflection 턴 전용 도구
 
 `finalize()`로 진입한 reflection 턴에서만 활성화.
@@ -106,9 +117,19 @@ user:
   games/{game}/prompt.md
   games/{game}/strategy_note.md
   games/{game}/sessions/{current}/state.{ext}
-  로컬 비전 추출 결과 (라벨 + 좌표 사전)
+  로컬 비전 추출 결과 (라벨 ↔ 좌표 사전, ADR-012 형식)
   현재 스크린샷
 ```
+
+라벨 ↔ 좌표 사전 형식 (ADR-012):
+
+```
+element_id  label          box(x1,y1,x2,y2)    click_at(x,y)
+cell_0_0    "빈 칸"         (10,40,50,80)       (30,60)
+tooltip     "마인 3"        (200,300,360,340)   (280,320)
+```
+
+LLM은 사전에서 좌표를 골라 액션 인자에 넣는다. 사전 외 자유 좌표 사용도 허용.
 
 이전 턴의 대화·도구 호출은 **포함되지 않음** (ADR-004).
 
