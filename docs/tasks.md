@@ -7,6 +7,7 @@
 - [ ] 로컬 UI 요소 검출: OmniParser 후보 검증 (스크린샷 → 요소 리스트)
 - [ ] 로컬 OCR: PaddleOCR vs Tesseract 비교 (속도·정확도)
 - [ ] 로컬 비전 LLM 필요 여부 판단 (필요 시 Qwen2-VL 7B vs MiniCPM-V 2.6 8B)
+- [ ] Mac 32GB 메모리 풋프린트 측정 — OmniParser + OCR + 비전 LLM(fp16 / Q8 / Q4) 동시 상주 시 사용량, OS·FastAPI 여유 확인. 한계 초과 시 ADR-014와 별개로 (A) 메모리 대응 ADR 박을 근거
 - [ ] 클라우드 추론 모델 라인업 검토 후 1차 선정
 - [ ] 한 사이클 end-to-end 토큰 비용 추산
 
